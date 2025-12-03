@@ -2,11 +2,10 @@
   makeRustPlatform,
   openssl,
   pkg-config,
-  rust-bin,
+  rust,
   src,
 }:
 let
-  rust = rust-bin.fromRustupToolchainFile "${src}/rust-toolchain.toml";
   rustPlatform = makeRustPlatform {
     cargo = rust;
     rustc = rust;

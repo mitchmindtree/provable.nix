@@ -26,18 +26,39 @@
     in
     {
       overlays = {
-        default = final: prev: {
-          leo = prev.callPackage ./pkgs/leo.nix { src = inputs.leo-src; };
-        };
+        default =
+          final: prev:
+          let
+            # Provide versions of leo built with both the officially supported
+            # rust version, as well as a rust nightly compiler to allow
+            # build-time profiling.
+            rust = prev.rust-bin.fromRustupToolchainFile "${inputs.leo-src}/rust-toolchain.toml";
+            rust-nightly = prev.rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
+          in
+          {
+            # Stable, official leo.
+            leo = prev.callPackage ./pkgs/leo.nix {
+              src = inputs.leo-src;
+              rust = rust;
+            };
+
+            # Leo built with nightly rust.
+            leo-rust-nightly = prev.callPackage ./pkgs/leo.nix {
+              src = inputs.leo-src;
+              rust = rust-nightly;
+            };
+          };
       };
 
       packages = perSystemPkgs (pkgs: {
         leo = pkgs.leo;
-        default = inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.leo;
+        leo-rust-nightly = pkgs.leo-rust-nightly;
+        default = pkgs.leo;
       });
 
       devShells = perSystemPkgs (pkgs: {
         leo-dev = pkgs.callPackage ./pkgs/leo-dev.nix { };
+        leo-nightly-dev = pkgs.callPackage ./pkgs/leo-dev.nix { leo = pkgs.leo-rust-nightly; };
         default = inputs.self.devShells.${pkgs.stdenv.hostPlatform.system}.leo-dev;
       });
 
