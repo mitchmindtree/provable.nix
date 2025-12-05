@@ -24,7 +24,7 @@ A Nix flake for the Leo language.
 If you're working on the leo repo itself, the following command can be
 useful. It allows you to enter a development shell with all of the necessary
 dependencies and environment variables to build leo and run the tests. This
-includes openssl and pkg-config.
+includes snarkos (with testnet enabled), openssl and pkg-config.
 
 ```console
 nix develop github:mitchmindtree/leo.nix
